@@ -1,184 +1,170 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0" />
-  <title>ScaleBI Console</title>
-
-  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
-    integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-  <!-- Bootstrap 5 bundle (includes Popper) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tickets</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-
 <body>
-  <div th:replace="fragments/header :: header"></div>
+<div class="container mt-4">
+  <h2 class="text-center mb-4">Tickets</h2>
 
-  <div class="container-fluid" style="max-width: 900px; margin: 0 auto;">
-    <h2 class="text-center">Tickets</h2>
-    
-    <div th:if="${message != null}" class="alert alert-success alert-dismissible fade show text-center message" role="alert">
-      [[${message}]]
-      <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+  <!-- Toast / Success Message -->
+  <div th:if="${message}"
+       class="toast align-items-center text-white bg-success border-0"
+       role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        [[${message}]]
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
+  </div>
 
-    <div class="my-3">
-      <form th:action="@{/tickets}" id="searchForm" method="get">
-        <input type="hidden" name="page" value="1" />
-        <input type="hidden" name="size" th:value="${pageSize}" />
-        <input type="hidden" name="sort" th:value="${sort}" />
-        <input type="hidden" name="dir" th:value="${dir}" />
-        <div class="row">
-          <div class="col-12">
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa fa-search"></i></span>
-              <input id="keyword" type="search" name="keyword" th:value="${keyword}" class="form-control" placeholder="Enter keyword">
-              <button type="submit" class="btn btn-secondary">Search</button>
-              <a th:href="@{/tickets}" class="btn btn-info">Clear</a>
-            </div>
-          </div>
-        </div>
+  <!-- Error Message -->
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i> [[${error}]]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  <!-- Search -->
+  <form th:action="@{/tickets}" method="get" class="row mb-3 justify-content-center">
+    <div class="col-auto">
+      <input type="text" name="keyword" th:value="${keyword}" class="form-control" placeholder="Search tickets">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i> Search</button>
+    </div>
+    <div class="col-auto">
+      <a th:href="@{/tickets}" class="btn btn-secondary">Reset</a>
+    </div>
+  </form>
+
+  <!-- Add Ticket -->
+  <div class="mb-3 text-end">
+    <a th:href="@{/tickets/new}" class="btn btn-success"><i class="fas fa-plus me-1"></i> Add New Ticket</a>
+  </div>
+
+  <!-- Tickets Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-dark">
+      <tr>
+        <th>
+          <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=id&dir=${sort == 'id' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">
+            ID
+          </a>
+        </th>
+        <th>
+          <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=title&dir=${sort == 'title' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">
+            Title
+          </a>
+        </th>
+        <th>
+          <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=description&dir=${sort == 'description' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">
+            Description
+          </a>
+        </th>
+        <th>
+          <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=level&dir=${sort == 'level' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">
+            Level
+          </a>
+        </th>
+        <th>
+          <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=published&dir=${sort == 'published' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">
+            Published
+          </a>
+        </th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="ticket : ${tickets}">
+        <td th:text="${ticket.id}"></td>
+        <td th:text="${ticket.title}"></td>
+        <td th:text="${ticket.description}"></td>
+        <td th:text="${ticket.level}"></td>
+        <td>
+          <i th:if="${ticket.published}" class="fa-regular fa-square-check text-success"></i>
+          <i th:if="${!ticket.published}" class="fa-regular fa-square text-muted"></i>
+        </td>
+        <td>
+          <a th:href="@{'/tickets/' + ${ticket.id}}" class="btn btn-sm btn-warning">
+            <i class="fas fa-edit me-1"></i> Edit
+          </a>
+          <a th:href="@{'/tickets/delete/' + ${ticket.id}}" class="btn btn-sm btn-danger"
+             onclick="return confirm('Are you sure you want to delete this ticket?');">
+            <i class="fas fa-trash me-1"></i> Delete
+          </a>
+        </td>
+      </tr>
+      <tr th:if="${#lists.isEmpty(tickets)}">
+        <td colspan="6">No tickets found.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="row align-items-center mt-3 g-2">
+    <div class="col-md-4">
+      <form th:action="@{/tickets}" method="get" class="d-inline-flex align-items-center">
+        <input type="hidden" name="page" value="1"/>
+        <input type="hidden" name="keyword" th:value="${keyword}"/>
+        <input type="hidden" name="sort" th:value="${sort}"/>
+        <input type="hidden" name="dir" th:value="${dir}"/>
+        <label for="sizeBottom" class="form-label me-2 mb-0">Per page</label>
+        <select id="sizeBottom" name="size" class="form-select w-auto" onchange="this.form.submit()">
+          <option th:selected="${pageSize == 10}" value="10">10</option>
+          <option th:selected="${pageSize == 25}" value="25">25</option>
+          <option th:selected="${pageSize == 50}" value="50">50</option>
+          <option th:selected="${pageSize == 100}" value="100">100</option>
+        </select>
       </form>
     </div>
 
-    <div th:if="${tickets.size() > 0}">
-      <table class="table table-hover table-responsive-xl">
-        <thead class="thead-light">
-          <tr>
-            <th scope="col">
-              <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=id&dir=${sort == 'id' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">Id</a>
-            </th>
-            <th scope="col">
-              <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=title&dir=${sort == 'title' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">Title</a>
-            </th>
-            <th scope="col">
-              <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=description&dir=${sort == 'description' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">Description</a>
-            </th>
-            <th scope="col">
-              <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=level&dir=${sort == 'level' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">Level</a>
-            </th>
-            <th scope="col">
-              <a th:href="@{|/tickets?page=${currentPage}&size=${pageSize}&sort=published&dir=${sort == 'published' ? reverseDir : 'asc'}${keyword != null ? '&keyword=' + keyword : ''}|}">Published</a>
-            </th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="ticket : ${tickets}">
-            <th scope="row">[[${ticket.id}]]</th>
-            <td>[[${ticket.title}]]</td>
-            <td>[[${ticket.description}]]</td>
-            <td>[[${ticket.level}]]</td>
-            <td>
-              <a th:if="${ticket.published == true}" class="fa-regular fa-square-check" th:href="@{'/tickets/' + ${ticket.id} + '/published/false'}" title="Disable this ticket"></a>
-              <a th:if="${ticket.published == false}" class="fa-regular fa-square icon-dark" th:href="@{'/tickets/' + ${ticket.id} + '/published/true'}" title="Enable this ticket"></a>
-            </td>
-            <td>
-              <a th:href="@{'/tickets/' + ${ticket.id}}" title="Edit this ticket" class="fa-regular fa-pen-to-square icon-dark"></a>
-              &nbsp;
-              <a th:href="@{'/tickets/delete/' + ${ticket.id}}" th:ticketTitle="${ticket.title}" id="btnDelete" title="Delete this ticket" class="fa-regular fa-trash-can icon-dark btn-delete"></a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="row align-items-center mt-3 g-2">
-        <div class="col-md-4">
-          <form th:action="@{/tickets}" method="get" class="d-inline-flex align-items-center">
-            <input type="hidden" name="page" value="1" />
-            <input type="hidden" name="keyword" th:value="${keyword}" />
-            <input type="hidden" name="sort" th:value="${sort}" />
-            <input type="hidden" name="dir" th:value="${dir}" />
-            <label for="sizeBottom" class="form-label me-2 mb-0">Per page</label>
-            <select id="sizeBottom" name="size" class="form-select w-auto" onchange="this.form.submit()">
-              <option th:selected="${pageSize == 10}" value="10">10</option>
-              <option th:selected="${pageSize == 25}" value="25">25</option>
-              <option th:selected="${pageSize == 50}" value="50">50</option>
-              <option th:selected="${pageSize == 100}" value="100">100</option>
-            </select>
-          </form>
-        </div>
-
-        <div class="col-md-4 text-center">
-          <span th:text="${totalItems}"></span> items • Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span>
-        </div>
-
-        <div class="col-md-4 text-end">
-          <nav aria-label="Ticket pagination">
-            <ul class="pagination justify-content-end mb-0">
-              <li class="page-item" th:classappend="${currentPage == 1} ? ' disabled'">
-                <span class="page-link" th:if="${currentPage == 1}" tabindex="-1" aria-disabled="true">Previous</span>
-                <a class="page-link" th:if="${currentPage > 1}"
-                   th:href="@{|/tickets?page=${currentPage - 1}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}">Previous</a>
-              </li>
-              <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == currentPage} ? ' active'">
-                <span class="page-link" th:if="${i == currentPage}" th:text="${i}">1</span>
-                <a class="page-link" th:if="${i != currentPage}"
-                   th:href="@{|/tickets?page=${i}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}"
-                   th:text="${i}">1</a>
-              </li>
-              <li class="page-item" th:classappend="${currentPage == totalPages} ? ' disabled'">
-                <span class="page-link" th:if="${currentPage == totalPages}" aria-disabled="true">Next</span>
-                <a class="page-link" th:if="${currentPage < totalPages}"
-                   th:href="@{|/tickets?page=${currentPage + 1}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}">Next</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-      </div>
+    <div class="col-md-4 text-center">
+      <span th:text="${totalItems}"></span> items • Page <span th:text="${currentPage}"></span> of <span th:text="${totalPages}"></span>
     </div>
 
-    <div class="" th:unless="${tickets.size() > 0}">
-      {{ ... }}
-    </div>
-
-  </div>
-
-  <div class="modal fade text-center" id="confirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Delete Confirmation</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <span id="confirmText"></span>
-        </div>
-
-        <div class="modal-footer">
-          <a type="button" id="yesBtn" class="btn btn-danger">Yes</a>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-        </div>
-      </div>
+    <div class="col-md-4 text-end">
+      <nav aria-label="Ticket pagination">
+        <ul class="pagination justify-content-end mb-0">
+          <li class="page-item" th:classappend="${currentPage == 1} ? ' disabled'">
+            <span class="page-link" th:if="${currentPage == 1}" tabindex="-1" aria-disabled="true">Previous</span>
+            <a class="page-link" th:if="${currentPage > 1}"
+               th:href="@{|/tickets?page=${currentPage - 1}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}">Previous</a>
+          </li>
+          <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+              th:classappend="${i == currentPage} ? ' active'">
+            <span class="page-link" th:if="${i == currentPage}" th:text="${i}">1</span>
+            <a class="page-link" th:if="${i != currentPage}"
+               th:href="@{|/tickets?page=${i}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}"
+               th:text="${i}">1</a>
+          </li>
+          <li class="page-item" th:classappend="${currentPage == totalPages} ? ' disabled'">
+            <span class="page-link" th:if="${currentPage == totalPages}" aria-disabled="true">Next</span>
+            <a class="page-link" th:if="${currentPage < totalPages}"
+               th:href="@{|/tickets?page=${currentPage + 1}&size=${pageSize}&sort=${sort}&dir=${dir}${keyword != null ? '&keyword=' + keyword : ''}|}">Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 
-  <div th:replace="fragments/footer :: footer"></div>
 
-  <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-      var deleteButtons = document.querySelectorAll('.btn-delete');
-      deleteButtons.forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-          e.preventDefault();
-          var link = e.currentTarget;
-          var ticketTitle = link.getAttribute('ticketTitle');
-          document.getElementById('yesBtn').setAttribute('href', link.getAttribute('href'));
-          document.getElementById('confirmText').innerHTML = 'Do you want to delete the Ticket <strong>' + ticketTitle + '</strong>?';
-          var modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-          modal.show();
-        });
-      });
-    });
-  </script>
-
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    toastElList.map(function (toastEl) {
+      var toast = new bootstrap.Toast(toastEl)
+      toast.show()
+    })
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
